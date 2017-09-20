@@ -1,0 +1,33 @@
+version: '2'
+
+services:
+  mysql:
+    image: mysql:5.6.31
+    environment:
+    - MYSQL_ROOT_PASSWORD=this_is_a_password
+    - MYSQL_USER=walle
+    - MYSQL_PASSWORD=wallepassword
+    - MYSQL_DATABASE=walledb
+    ports:
+    - "13306:3306"
+  fpm:
+    volumes_from:
+    - data
+    build:
+        context: .
+        dockerfile: fpm/Dockerfile
+    links:
+    - mysql
+  nginx:
+    image: nginx:1.10.1-alpine
+    ports:
+    - "8000:80"
+    links:
+    - fpm
+    volumes_from:
+    - data
+  data:
+    image: busybox
+    volumes:
+    - /Users/oylbin/local/src/docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    - /Users/oylbin/local/src/docker/webroot:/usr/share/nginx/html:rw
